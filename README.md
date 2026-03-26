@@ -32,12 +32,13 @@ Scroll through commands with **Up / Down**, press **OK** to send:
 - **POWER** — turn on/off
 - **BASE** — send robot to charging base
 - **PLAY/PAUSE** — start or pause cleaning
+- **OK** — confirm selection on robot display
+- **MODE** — change cleaning program
 - **WIFI** — WiFi pairing
 - **TIMER** — set timer
-- **PROGRAM** — change cleaning program
+- **CLOCK** — clock settings
 - **CLIMB** — toggle obstacle climbing height (HI/LO)
 - **MUTE** — toggle sound feedback (ON/OFF)
-- **OK** — confirm selection on robot display
 
 ### Exit
 

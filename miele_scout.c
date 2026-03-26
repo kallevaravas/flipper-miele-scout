@@ -18,8 +18,7 @@ typedef struct {
     uint32_t command;
 } MieleCommand;
 
-/* Drive-mode commands (index matches InputKey enum order isn't needed,
-   we just look these up directly) */
+/* Drive-mode commands */
 static const uint32_t cmd_up    = 0x08;
 static const uint32_t cmd_down  = 0x09;
 static const uint32_t cmd_left  = 0x0B;
@@ -31,12 +30,13 @@ static const MieleCommand menu_commands[] = {
     {"POWER",      0x07},
     {"BASE",       0x04},
     {"PLAY/PAUSE", 0x06},
+    {"OK",         0x0C},
+    {"MODE",       0x05},
     {"WIFI",       0x01},
     {"TIMER",      0x03},
-    {"PROGRAM",    0x05},
+    {"CLOCK",      0x02},
     {"CLIMB",      0x0D},
     {"MUTE",       0x0E},
-    {"OK",         0x02},
 };
 
 #define MENU_COUNT (sizeof(menu_commands) / sizeof(menu_commands[0]))
@@ -171,7 +171,7 @@ static void draw_callback(Canvas* canvas, void* ctx) {
             canvas_draw_circle(canvas, cx, cy, 4);
         }
 
-        /* Bottom hints — two lines to avoid overlap */
+        /* Bottom hints */
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 32, 110, AlignCenter, AlignBottom, "OK = Start");
         canvas_draw_str_aligned(canvas, 32, 122, AlignCenter, AlignBottom, "Back = Menu");
@@ -220,7 +220,7 @@ static void draw_callback(Canvas* canvas, void* ctx) {
                 canvas, 58, list_y + visible * item_h + 2, AlignCenter, AlignBottom, "v");
         }
 
-        /* Bottom hints — two lines */
+        /* Bottom hints */
         canvas_draw_str_aligned(canvas, 32, 110, AlignCenter, AlignBottom, "OK = Send");
         canvas_draw_str_aligned(canvas, 32, 122, AlignCenter, AlignBottom, "Back = Drive");
     }
