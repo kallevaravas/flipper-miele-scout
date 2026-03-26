@@ -1,10 +1,10 @@
-# Miele Scout RX2 — Flipper Zero Remote
+# Miele Scout RX2 - Flipper Zero Remote
 
-Custom Flipper Zero app for controlling the Miele Scout RX2 robot vacuum via infrared.
+Flipper Zero app for controlling the Miele Scout RX2 robot vacuum over IR.
 
 ## Install
 
-Copy `dist/miele_scout.fap` to your Flipper Zero SD card:
+Grab the pre-built `dist/miele_scout.fap` from this repo and copy it to your Flipper Zero SD card:
 
 ```
 SD Card/apps/Infrared/miele_scout.fap
@@ -12,49 +12,54 @@ SD Card/apps/Infrared/miele_scout.fap
 
 Open it from **Apps > Infrared > Miele Scout RX2**.
 
-## How it works
+## Usage
 
 The app has two modes. Press **Back** to switch between them.
 
 ### Drive mode
 
-Use the Flipper's d-pad to steer the robot in real time:
+Use the d-pad to steer the robot directly:
 
-- **Up / Down / Left / Right** — move the robot
-- **OK** — start cleaning
+- **Up / Down / Left / Right** - move the robot
+- **OK** - start cleaning
 
-Hold the Flipper vertically (IR port pointing at the robot). The d-pad directions match the robot's movement. Release the button to stop — there's no drift.
+Point the Flipper's IR port at the robot. Release the button to stop.
 
 ### Menu mode
 
-Scroll through commands with **Up / Down**, press **OK** to send:
+Scroll with **Up / Down**, press **OK** to send:
 
-- **POWER** — turn on/off
-- **BASE** — send robot to charging base
-- **PLAY/PAUSE** — start or pause cleaning
-- **OK** — confirm selection on robot display
-- **MODE** — change cleaning program
-- **WIFI** — WiFi pairing
-- **TIMER** — set timer
-- **CLOCK** — clock settings
-- **CLIMB** — toggle obstacle climbing height (HI/LO)
-- **MUTE** — toggle sound feedback (ON/OFF)
+- **POWER** - turn on/off
+- **BASE** - send to charging base
+- **PLAY/PAUSE** - start or pause cleaning
+- **OK** - confirm on robot display
+- **MODE** - cleaning program
+- **WIFI** - WiFi pairing
+- **TIMER** - set timer
+- **CLOCK** - clock settings
+- **CLIMB** - climbing height (HI/LO)
+- **MUTE** - sound on/off
 
-### Exit
-
-Long-press **Back** to close the app.
+Long-press **Back** to exit.
 
 ## Build from source
 
-Requires [ufbt](https://github.com/flipperdevices/flipperzero-ufbt):
+If you want to tweak the code and build it yourself, you need [ufbt](https://github.com/flipperdevices/flipperzero-ufbt) (micro Flipper Build Tool):
 
 ```
 pip install ufbt
+```
+
+Then just run `ufbt` in the project folder:
+
+```
 ufbt
 ```
 
-Output lands in `dist/miele_scout.fap`.
+This compiles `miele_scout.c` and outputs the app to `dist/miele_scout.fap`. Copy that to your Flipper and you're good to go.
+
+The IR codes are defined at the top of `miele_scout.c` if you need to change any of them. The NEC protocol address is `0x01` and each button has its own command byte.
 
 ## Compatibility
 
-Built for Flipper Zero official firmware. Uses NEC IR protocol (address 0x01). Should work with any Miele Scout RX2 unit that came with the standard IR remote.
+Built for Flipper Zero official firmware. Uses NEC IR protocol. Works with any Miele Scout RX2 that has the standard IR remote.
