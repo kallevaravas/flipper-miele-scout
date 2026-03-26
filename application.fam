@@ -7,7 +7,7 @@ App(
     fap_category="Infrared",
     fap_icon="miele_scout_10px.png",
     fap_version=(1, 0),
-    fap_description="Remote control for Miele Scout RX1/RX2 robot vacuum with Drive and Menu modes",
+    fap_description="Remote control for Miele Scout RX2 robot vacuum with Drive and Menu modes",
     fap_author="Kalle Varavas",
     stack_size=2 * 1024,
 )

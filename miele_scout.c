@@ -9,7 +9,7 @@
 /* ── NEC protocol constants ─────────────────────────────────────────── */
 
 #define MIELE_IR_ADDRESS 0x01
-#define MIELE_IR_REPEATS 2
+#define MIELE_IR_REPEATS 1
 
 /* ── IR command table ───────────────────────────────────────────────── */
 
@@ -24,19 +24,19 @@ static const uint32_t cmd_up    = 0x08;
 static const uint32_t cmd_down  = 0x09;
 static const uint32_t cmd_left  = 0x0B;
 static const uint32_t cmd_right = 0x0A;
-static const uint32_t cmd_ok    = 0x0C;
+static const uint32_t cmd_start = 0x06; /* PLAY/PAUSE — starts cleaning */
 
 /* Menu-mode commands */
 static const MieleCommand menu_commands[] = {
-    {"POWER",   0x07},
-    {"START",   0x04},
-    {"BASE",    0x06},
-    {"TIMER",   0x05},
-    {"PROGRAM", 0x01},
-    {"BTN 1",   0x02},
-    {"BTN 2",   0x03},
-    {"BTN 3",   0x0D},
-    {"BTN 4",   0x0E},
+    {"POWER",      0x07},
+    {"BASE",       0x04},
+    {"PLAY/PAUSE", 0x06},
+    {"WIFI",       0x01},
+    {"TIMER",      0x03},
+    {"PROGRAM",    0x05},
+    {"CLIMB",      0x0D},
+    {"MUTE",       0x0E},
+    {"OK",         0x02},
 };
 
 #define MENU_COUNT (sizeof(menu_commands) / sizeof(menu_commands[0]))
@@ -94,6 +94,8 @@ static void draw_callback(Canvas* canvas, void* ctx) {
     MieleScoutApp* app = ctx;
     canvas_clear(canvas);
 
+    /* Portrait: 64w x 128h */
+
     /* ── Header bar ── */
     canvas_set_font(canvas, FontPrimary);
     if(app->mode == ModeDrive) {
@@ -104,76 +106,75 @@ static void draw_callback(Canvas* canvas, void* ctx) {
 
     /* TX indicator */
     if(app->tx_flash) {
-        canvas_draw_str_aligned(canvas, 126, 12, AlignRight, AlignBottom, "[TX]");
+        canvas_draw_str_aligned(canvas, 62, 12, AlignRight, AlignBottom, "[TX]");
         app->tx_flash = false;
     } else {
-        canvas_draw_str_aligned(canvas, 126, 12, AlignRight, AlignBottom, "[IR]");
+        canvas_draw_str_aligned(canvas, 62, 12, AlignRight, AlignBottom, "[IR]");
     }
 
     /* Separator line */
-    canvas_draw_line(canvas, 0, 15, 128, 15);
+    canvas_draw_line(canvas, 0, 15, 64, 15);
 
     if(app->mode == ModeDrive) {
         /* ── Drive mode UI ── */
 
-        /* Center point of the d-pad graphic */
-        const int cx = 64;
-        const int cy = 38;
-        const int arrow_len = 14;
-        const int head = 4;
+        /* Center of d-pad graphic — centered in the available area */
+        const int cx = 32;
+        const int cy = 60;
+        const int arrow_len = 18;
+        const int head = 5;
 
         /* Up arrow */
-        bool highlight_up = (app->active_dir == DirUp);
-        if(highlight_up) canvas_set_color(canvas, ColorBlack);
-        canvas_draw_line(canvas, cx, cy - arrow_len, cx, cy - 4);
+        canvas_draw_line(canvas, cx, cy - arrow_len, cx, cy - 5);
         canvas_draw_line(canvas, cx - head, cy - arrow_len + head, cx, cy - arrow_len);
         canvas_draw_line(canvas, cx + head, cy - arrow_len + head, cx, cy - arrow_len);
-        if(highlight_up) {
+        if(app->active_dir == DirUp) {
             canvas_set_font(canvas, FontSecondary);
-            canvas_draw_str_aligned(canvas, cx, cy - arrow_len - 3, AlignCenter, AlignBottom, "UP");
+            canvas_draw_str_aligned(
+                canvas, cx, cy - arrow_len - 3, AlignCenter, AlignBottom, "UP");
         }
 
         /* Down arrow */
-        bool highlight_down = (app->active_dir == DirDown);
-        canvas_draw_line(canvas, cx, cy + 4, cx, cy + arrow_len);
+        canvas_draw_line(canvas, cx, cy + 5, cx, cy + arrow_len);
         canvas_draw_line(canvas, cx - head, cy + arrow_len - head, cx, cy + arrow_len);
         canvas_draw_line(canvas, cx + head, cy + arrow_len - head, cx, cy + arrow_len);
-        if(highlight_down) {
+        if(app->active_dir == DirDown) {
             canvas_set_font(canvas, FontSecondary);
-            canvas_draw_str_aligned(canvas, cx, cy + arrow_len + 9, AlignCenter, AlignBottom, "DN");
+            canvas_draw_str_aligned(
+                canvas, cx, cy + arrow_len + 9, AlignCenter, AlignBottom, "DN");
         }
 
         /* Left arrow */
-        bool highlight_left = (app->active_dir == DirLeft);
-        canvas_draw_line(canvas, cx - arrow_len, cy, cx - 4, cy);
+        canvas_draw_line(canvas, cx - arrow_len, cy, cx - 5, cy);
         canvas_draw_line(canvas, cx - arrow_len + head, cy - head, cx - arrow_len, cy);
         canvas_draw_line(canvas, cx - arrow_len + head, cy + head, cx - arrow_len, cy);
-        if(highlight_left) {
+        if(app->active_dir == DirLeft) {
             canvas_set_font(canvas, FontSecondary);
-            canvas_draw_str_aligned(canvas, cx - arrow_len - 3, cy + 3, AlignRight, AlignBottom, "LT");
+            canvas_draw_str_aligned(
+                canvas, cx - arrow_len - 2, cy + 3, AlignRight, AlignBottom, "LT");
         }
 
         /* Right arrow */
-        bool highlight_right = (app->active_dir == DirRight);
-        canvas_draw_line(canvas, cx + 4, cy, cx + arrow_len, cy);
+        canvas_draw_line(canvas, cx + 5, cy, cx + arrow_len, cy);
         canvas_draw_line(canvas, cx + arrow_len - head, cy - head, cx + arrow_len, cy);
         canvas_draw_line(canvas, cx + arrow_len - head, cy + head, cx + arrow_len, cy);
-        if(highlight_right) {
+        if(app->active_dir == DirRight) {
             canvas_set_font(canvas, FontSecondary);
-            canvas_draw_str_aligned(canvas, cx + arrow_len + 3, cy + 3, AlignLeft, AlignBottom, "RT");
+            canvas_draw_str_aligned(
+                canvas, cx + arrow_len + 2, cy + 3, AlignLeft, AlignBottom, "RT");
         }
 
         /* Center dot / OK */
-        bool highlight_ok = (app->active_dir == DirOk);
-        if(highlight_ok) {
-            canvas_draw_disc(canvas, cx, cy, 4);
+        if(app->active_dir == DirOk) {
+            canvas_draw_disc(canvas, cx, cy, 5);
         } else {
-            canvas_draw_circle(canvas, cx, cy, 3);
+            canvas_draw_circle(canvas, cx, cy, 4);
         }
 
-        /* Bottom hint */
+        /* Bottom hints — two lines to avoid overlap */
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 64, 62, AlignCenter, AlignBottom, "OK=Spot  Back=Menu");
+        canvas_draw_str_aligned(canvas, 32, 110, AlignCenter, AlignBottom, "OK = Start");
+        canvas_draw_str_aligned(canvas, 32, 122, AlignCenter, AlignBottom, "Back = Menu");
 
         /* Reset active direction after drawing */
         app->active_dir = DirNone;
@@ -183,7 +184,7 @@ static void draw_callback(Canvas* canvas, void* ctx) {
 
         canvas_set_font(canvas, FontSecondary);
         const int item_h = 11;
-        const int visible = 4;
+        const int visible = 8;
         const int list_y = 18;
 
         /* Calculate scroll offset to keep selection visible */
@@ -199,7 +200,7 @@ static void draw_callback(Canvas* canvas, void* ctx) {
             if(idx == app->menu_index) {
                 /* Highlighted selection */
                 canvas_set_color(canvas, ColorBlack);
-                canvas_draw_box(canvas, 0, y, 128, item_h);
+                canvas_draw_box(canvas, 0, y, 64, item_h);
                 canvas_set_color(canvas, ColorWhite);
                 canvas_draw_str(canvas, 6, y + 9, menu_commands[idx].name);
                 canvas_draw_str(canvas, 1, y + 9, ">");
@@ -212,14 +213,16 @@ static void draw_callback(Canvas* canvas, void* ctx) {
         /* Scroll indicators */
         canvas_set_color(canvas, ColorBlack);
         if(scroll > 0) {
-            canvas_draw_str_aligned(canvas, 120, 19, AlignCenter, AlignBottom, "^");
+            canvas_draw_str_aligned(canvas, 58, 19, AlignCenter, AlignBottom, "^");
         }
         if(scroll + visible < (int)MENU_COUNT) {
-            canvas_draw_str_aligned(canvas, 120, 61, AlignCenter, AlignBottom, "v");
+            canvas_draw_str_aligned(
+                canvas, 58, list_y + visible * item_h + 2, AlignCenter, AlignBottom, "v");
         }
 
-        /* Bottom hint */
-        canvas_draw_str_aligned(canvas, 64, 62, AlignCenter, AlignBottom, "OK=Send  Back=Drive");
+        /* Bottom hints — two lines */
+        canvas_draw_str_aligned(canvas, 32, 110, AlignCenter, AlignBottom, "OK = Send");
+        canvas_draw_str_aligned(canvas, 32, 122, AlignCenter, AlignBottom, "Back = Drive");
     }
 }
 
@@ -250,8 +253,9 @@ int32_t miele_scout_app(void* p) {
     /* Event queue */
     app->queue = furi_message_queue_alloc(8, sizeof(InputEvent));
 
-    /* ViewPort */
+    /* ViewPort — portrait orientation (IR points up when held vertical) */
     app->view_port = view_port_alloc();
+    view_port_set_orientation(app->view_port, ViewPortOrientationVertical);
     view_port_draw_callback_set(app->view_port, draw_callback, app);
     view_port_input_callback_set(app->view_port, input_callback, app);
     gui_add_view_port(app->gui, app->view_port, GuiLayerFullscreen);
@@ -276,8 +280,16 @@ int32_t miele_scout_app(void* p) {
 
             if(app->mode == ModeDrive) {
                 /* Drive mode: d-pad sends IR directly.
-                   Handle Press (first) and Repeat (held) for continuous driving. */
-                if(event.type == InputTypePress || event.type == InputTypeRepeat) {
+                   On release, flush the queue so queued repeats don't overcorrect. */
+                if(event.type == InputTypeRelease) {
+                    /* Drain any pending repeat events from the queue */
+                    InputEvent discard;
+                    while(furi_message_queue_get(app->queue, &discard, 0) == FuriStatusOk) {
+                        /* discard */
+                    }
+                    app->active_dir = DirNone;
+                    view_port_update(app->view_port);
+                } else if(event.type == InputTypePress || event.type == InputTypeRepeat) {
                     switch(event.key) {
                     case InputKeyUp:
                         app->active_dir = DirUp;
@@ -297,7 +309,7 @@ int32_t miele_scout_app(void* p) {
                         break;
                     case InputKeyOk:
                         app->active_dir = DirOk;
-                        miele_send(app, cmd_ok);
+                        miele_send(app, cmd_start);
                         break;
                     default:
                         break;
