@@ -4,11 +4,9 @@ Flipper Zero app for controlling the Miele Scout RX2 robot vacuum over IR.
 
 ## Install
 
-Grab the pre-built `dist/miele_scout.fap` from this repo and copy it to your Flipper Zero SD card:
+Grab the pre-built dist/miele_scout.fap from this repo and copy it to your Flipper Zero SD card:
 
-```
 SD Card/apps/Infrared/miele_scout.fap
-```
 
 Open it from **Apps > Infrared > Miele Scout RX2**.
 
@@ -46,19 +44,15 @@ Long-press **Back** to exit.
 
 If you want to tweak the code and build it yourself, you need [ufbt](https://github.com/flipperdevices/flipperzero-ufbt) (micro Flipper Build Tool):
 
-```
 pip install ufbt
-```
 
-Then just run `ufbt` in the project folder:
+Then just run ufbt in the project folder:
 
-```
 ufbt
-```
 
-This compiles `miele_scout.c` and outputs the app to `dist/miele_scout.fap`. Copy that to your Flipper and you're good to go.
+This compiles miele_scout.c and outputs the app to dist/miele_scout.fap. Copy that to your Flipper and you're good to go.
 
-The IR codes are defined at the top of `miele_scout.c` if you need to change any of them. The NEC protocol address is `0x01` and each button has its own command byte.
+The IR codes are defined at the top of miele_scout.c if you need to change any of them. The NEC protocol address is 0x01 and each button has its own command byte.
 
 ## Compatibility
 
