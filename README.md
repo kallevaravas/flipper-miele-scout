@@ -16,7 +16,7 @@ Open it from **Apps > Infrared > Miele Scout RX2**.
 
 The app has two modes. Press **Back** to switch between them.
 
-### Drive mode
+## Drive mode
 
 Use the d-pad to steer the robot directly:
 
@@ -25,7 +25,7 @@ Use the d-pad to steer the robot directly:
 
 Point the Flipper's IR port at the robot. Release the button to stop.
 
-### Menu mode
+## Menu mode
 
 Scroll with **Up / Down**, press **OK** to send:
 
